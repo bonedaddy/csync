@@ -1,10 +1,10 @@
 /*!
-  * @brief will initialize the given wait_group_t instance
+  * @brief will initialize the given csync_wait_group_t instance
   * @details do not use this function if you are initializing 
   * @details the struct yourself, however the recommended
   * @details way of using this library is to declare the 
   * @details variable, and then pass a pointer to it into this function
-  * @param wg a declared but uninitialized wait_group_t instance
+  * @param wg a declared but uninitialized csync_wait_group_t instance
 */
 
 #include <unistd.h>
@@ -13,21 +13,21 @@
 #include "wait_group.h"
 
 /*!
-  * @brief will initialize the given wait_group_t instance
+  * @brief will initialize the given csync_wait_group_t instance
   * @details do not use this function if you are initializing 
   * @details the struct yourself, however the recommended
   * @details way of using this library is to declare the 
   * @details variable, and then pass a pointer to it into this function
-  * @param wg a declared but uninitialized wait_group_t instance
+  * @param wg a declared but uninitialized csync_wait_group_t instance
   * @note you may ignore the return value if wg is not NULL
   * @note otherwise return value must be checked 
   * @return Success (wg != NULL): NULL
-  * @return Success (wg == NULL): instance of wait_group_t
+  * @return Success (wg == NULL): instance of csync_wait_group_t
   * @return Failure (wg == NULL): NULL
 */
-wait_group_t *wait_group_new(wait_group_t *wg) {
+csync_wait_group_t *csync_wait_group_new(csync_wait_group_t *wg) {
     if (wg == NULL) {
-        wg = calloc(1, sizeof(wait_group_t));
+        wg = calloc(1, sizeof(csync_wait_group_t));
         if (wg == NULL) {
             return NULL;
         }
@@ -41,16 +41,16 @@ wait_group_t *wait_group_new(wait_group_t *wg) {
   * @brief waits until count reaches 0
   * @details used to wait on different threads/processes
 */
-void wait_group_wait(wait_group_t *wg) {
+void csync_wait_group_wait(csync_wait_group_t *wg) {
 
-    if (wait_group_count(wg) == 0) {
+    if (csync_wait_group_count(wg) == 0) {
         return;
     }
     
     for (;;) {
         // 1000 us == 1 millisecond
         usleep(50000); // 50 millisecond
-        if (wait_group_count == 0) {
+        if (csync_wait_group_count == 0) {
             return;
         }
     }
@@ -61,8 +61,8 @@ void wait_group_wait(wait_group_t *wg) {
   * @warning if count + num overflows this is considered a runtime error
   * @warning and we will exit
 */
-void wait_group_add(wait_group_t *wg, unsigned int num) {
-    unsigned int count = wait_group_count(wg);
+void csync_wait_group_add(csync_wait_group_t *wg, unsigned int num) {
+    unsigned int count = csync_wait_group_count(wg);
     if (count + num < count) {
         exit(1);
     }
@@ -76,8 +76,8 @@ void wait_group_add(wait_group_t *wg, unsigned int num) {
   * @details if the active count is 0 and this is called, it is considered
   * @details a runtime error and we exit
 */
-void wait_group_done(wait_group_t *wg) {
-    unsigned int count = wait_group_count(wg);
+void csync_wait_group_done(csync_wait_group_t *wg) {
+    unsigned int count = csync_wait_group_count(wg);
     if (count == 0) {
         exit(1);
     }
@@ -90,7 +90,7 @@ void wait_group_done(wait_group_t *wg) {
   * @brief used to return the number of active actors
   * @return number of active actors
 */
-unsigned int wait_group_count(wait_group_t *wg) {
+unsigned int csync_wait_group_count(csync_wait_group_t *wg) {
     pthread_rwlock_rdlock(&wg->mutex);
     unsigned int count = wg->count;
     pthread_rwlock_unlock(&wg->mutex);
