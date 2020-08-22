@@ -6,9 +6,13 @@
 
 #include <pthread.h>
 
+/*!
+  * @brief allows waiting on other threads/processes
+  * @details is roughly equivalent to Golang's sync.WaitGroup type
+*/
 typedef struct wait_group {
-    unsigned int count;
-    pthread_rwlock_t mutex;
+    unsigned int count; /*! @brief the current number of active threads/processes */
+    pthread_rwlock_t mutex; /*! @brief guards access to the count member */
 } wait_group_t;
 
 

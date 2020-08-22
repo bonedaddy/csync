@@ -43,7 +43,7 @@ endif()
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include(${PROJECT_SOURCE_DIR}/cmake/pkgs/doxygen.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/pkgs/valgrind.cmake)
-
+include(${PROJECT_SOURCE_DIR}/cmake/libraries/csync.cmake)
 
 # build documentation
 add_doxygen_doc(
