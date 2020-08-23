@@ -61,15 +61,33 @@ void *csync_pool_get(csync_pool_t *pool) {
 void csync_pool_put(csync_pool_t *pool, void *item) {
     pthread_mutex_lock(&pool->mutex);
     if (pool->count >= pool->size) {
-        pool->items = realloc(pool->items, pool->size * 2);
+        // increase size by 2
+        pool->size *= 2;
+        // reallocate the memory
+        pool->items = realloc(pool->items, pool->size);
         if (pool->items == NULL) {
             // todo: gracefully handle
             exit(1);
         }
-        // increase size by 2
-        pool->size *= 2;
+
     }
     pool->items[pool->count] = item;
     pool->count += 1;
     pthread_mutex_unlock(&pool->mutex);
+}
+
+/*!
+  * @brief used to completely destroy the pool and all allocated objects
+  * @warning do not use while any objects are borrowed from the pool
+*/
+void csync_pool_destroy(csync_pool_t *pool) {
+  pthread_mutex_lock(&pool->mutex);
+
+  for (unsigned int i = 0; i < pool->count; i++) {
+    pool->free_fn(pool->items[i]);
+  }
+
+  pthread_mutex_destroy(&pool->mutex);
+
+  free(pool);
 }

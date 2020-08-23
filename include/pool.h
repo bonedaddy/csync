@@ -8,6 +8,12 @@
 
 #include <pthread.h>
 
+
+/*!
+  * @brief used to free up the memory for objects returned by csync_pool_alloc
+*/
+typedef void (*csync_pool_free)(void *);
+
 /*!
   * @brief function signature for the function used to create new objects in the pool
 */
@@ -20,7 +26,6 @@ typedef void *(*csync_pool_alloc)(void);
   * @details and allowing you to return the object back to the pool when you no longer need it
   * @details subsequent attempst to creating a new object will be skipped as long as there is an object in the pool
   * @note it is threadsafe as long as all interaction with the pool are done through the functions
-  * @todo add a function to free up all pool resources
 */
 typedef struct csync_pool {
     void **items;
@@ -28,6 +33,7 @@ typedef struct csync_pool {
     unsigned int size;
     pthread_mutex_t mutex;
     csync_pool_alloc alloc_fn;
+    csync_pool_free free_fn;
 } csync_pool_t;
 
 /*!
@@ -57,3 +63,9 @@ void *csync_pool_get(csync_pool_t *pool);
   * @note it will resize the items array if needed
 */
 void csync_pool_put(csync_pool_t *pool, void *item);
+
+/*!
+  * @brief used to completely destroy the pool and all allocated objects
+  * @warning do not use while any objects are borrowed from the pool
+*/
+void csync_pool_destroy(csync_pool_t *pool);
