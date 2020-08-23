@@ -41,7 +41,8 @@ csync_pool_t *csync_pool_new(unsigned int size, csync_pool_alloc alloc_fn) {
 void *csync_pool_get(csync_pool_t *pool) {
     pthread_mutex_lock(&pool->mutex);
     if (pool->count > 0) {
-        void *item = pool->items[pool->count];
+        // since array start at 0, minus 1 from count
+        void *item = pool->items[pool->count - 1];
         pool->count -= 1;
         pthread_mutex_unlock(&pool->mutex);
         return item;
