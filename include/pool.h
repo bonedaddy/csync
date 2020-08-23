@@ -1,13 +1,16 @@
-
 /*!
   * @file pool.h
-  * @brief allows reuse memory allocated objects to reduce overall memory allocations
+  * @brief allows reuse memory allocated objects to reduce overall memory allocations at the expense of increase memory consumption
   * @details it does this by allowing you to store objects when you are done with them
   * @details it is not suitable for memory constrained environments as it doesnt deallocate
   * @details the memory allocated for the objects when they arent in use
 */
+
 #include <pthread.h>
 
+/*!
+  * @brief function signature for the function used to create new objects in the pool
+*/
 typedef void *(*csync_pool_alloc)(void);
 
 /*!
