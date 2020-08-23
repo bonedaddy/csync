@@ -20,8 +20,9 @@
   * @param size the initial aray size that will allow us to hold size elements
   * @param size this is not a max limit, and will be doubled whenever we have allocated size amount
   * @param alloc_fn a function that when called will return a new chunk of memory
+  * @param free_fn a function that is used to free up the objects returned by alloc_fn
 */
-csync_pool_t *csync_pool_new(unsigned int size, csync_pool_alloc alloc_fn) {
+csync_pool_t *csync_pool_new(unsigned int size, csync_pool_alloc alloc_fn, csync_pool_free free_fn) {
     csync_pool_t *pool = calloc(1, sizeof(csync_pool_t));
     if (pool == NULL) {
         return NULL;
@@ -30,6 +31,7 @@ csync_pool_t *csync_pool_new(unsigned int size, csync_pool_alloc alloc_fn) {
     pool->size = size;
     pool->count = 0;
     pool->alloc_fn = alloc_fn;
+    pool->free_fn = free_fn;
     pthread_mutex_init(&pool->mutex, NULL);
     return pool;
 }

@@ -46,8 +46,9 @@ typedef struct csync_pool {
   * @param size the initial aray size that will allow us to hold size elements
   * @param size this is not a max limit, and will be doubled whenever we have allocated size amount
   * @param alloc_fn a function that when called will return a new chunk of memory
+  * @param free_fn a function that is used to free up the objects returned by alloc_fn
 */
-csync_pool_t *csync_pool_new(unsigned int size, csync_pool_alloc alloc_fn);
+csync_pool_t *csync_pool_new(unsigned int size, csync_pool_alloc alloc_fn, csync_pool_free free_fn);
 
 /*!
   * @brief returns an existing object, creating one from scratch if none are currently stored

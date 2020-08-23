@@ -17,6 +17,10 @@ typedef struct object_test {
   int b;
 } object_test_t;
 
+void free_object_test(void *obj) {
+  free((object_test_t *)obj);
+}
+
 void *new_object_test() {
   object_test_t *obj = calloc(1, sizeof(object_test_t));
   assert(obj != NULL);
@@ -59,7 +63,7 @@ void test_csync_cond_new_null(void **state) {
 
 
 void test_csync_pool(void **state) {
-  csync_pool_t *pool = csync_pool_new(10, new_object_test);
+  csync_pool_t *pool = csync_pool_new(10, new_object_test, free_object_test);
   assert(pool != NULL);
 
   // this should create a new object
