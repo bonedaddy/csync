@@ -5,12 +5,19 @@
 #include <setjmp.h>
 #include <cmocka.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "wait_group.h"
 #include "cond.h"
 #include "pool.h"
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
+void *csync_cond_test_fn(void *data) {
+  csync_cond_t *cond = (csync_cond_t *)data;
+  csync_cond_wait(cond);
+  printf("done waiting\n");
+  return NULL;
+}
 
 typedef struct object_test {
   int a;
@@ -49,16 +56,38 @@ void test_csync_wait_group_new_null(void **state) {
 void test_csync_cond_new(void **state) {
   csync_cond_t cond;
   csync_cond_new(&cond);
+
+  pthread_t thread1;
+  pthread_t thread2;
+
+  pthread_create(&thread1, NULL, csync_cond_test_fn, &cond);
+  pthread_detach(thread1);
+
+  pthread_create(&thread2, NULL, csync_cond_test_fn, &cond);
+  pthread_detach(thread2);
+
+  sleep(2); // wait for threads to startup and shit
+
   csync_cond_broadcast(&cond);
   csync_cond_signal(&cond);
-  // todo: we need to create a thread to do the signalling so we can be blocked on wait
 }
 
 void test_csync_cond_new_null(void **state) {
   csync_cond_t *cond = csync_cond_new(NULL);
+
+  pthread_t thread1;
+  pthread_t thread2;
+  
+  pthread_create(&thread1, NULL, csync_cond_test_fn, cond);
+  pthread_detach(thread1);
+
+  pthread_create(&thread2, NULL, csync_cond_test_fn, cond);
+  pthread_detach(thread2);
+
+  sleep(2); // wait for threads to startup and shit
+
   csync_cond_broadcast(cond);
   csync_cond_signal(cond);
-  // todo: we need to create a thread to do the signalling so we can be blocked on wait
 }
 
 
